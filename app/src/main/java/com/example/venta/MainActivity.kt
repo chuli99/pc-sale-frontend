@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +35,12 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.runtime.Composable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,8 +122,8 @@ fun DispositivoList(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF0F4F8),
-                        Color(0xFFE6EAF0)
+                        Color(0xff424242),
+                        Color(0xff212121)
                     )
                 )
             )
@@ -135,7 +142,7 @@ fun DispositivoList(
                         .clip(RoundedCornerShape(15.dp))
                         .clickable { onDispositivoSelected(dispositivoDetails) },
                     elevation = 6.dp,
-                    backgroundColor = Color.White
+                    backgroundColor = Color.Black
                 ) {
                     Column(
                         modifier = Modifier
@@ -146,14 +153,14 @@ fun DispositivoList(
                             text = dispositivoDetails.dispositivo.nombre,
                             style = MaterialTheme.typography.h6.copy(
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFF1A2B3C)
+                                color = Color(0xffffffff)
                             )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = dispositivoDetails.dispositivo.descripcion,
                             style = MaterialTheme.typography.body2.copy(
-                                color = Color(0xFF667085)
+                                color = Color(0xF3F3F3F3)
                             )
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -166,13 +173,13 @@ fun DispositivoList(
                                 text = "Precio: ${dispositivoDetails.dispositivo.precioBase} ${dispositivoDetails.dispositivo.moneda}",
                                 style = MaterialTheme.typography.body1.copy(
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF007BFF)
+                                    color = Color.Green
                                 )
                             )
                             Icon(
                                 imageVector = Icons.Default.ShoppingCart,
                                 contentDescription = "Seleccionar dispositivo",
-                                tint = Color(0xFF007BFF)
+                                tint = Color.Green
                             )
                         }
                     }
@@ -183,13 +190,80 @@ fun DispositivoList(
 }
 
 @Composable
+fun CaracteristicasDropdown(
+    caracteristicas: List<Caracteristica>
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Botón que activa o desactiva el menú desplegable
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(8.dp)
+                .background(
+                    color = Color(0xFF424242),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(1.dp, Color.White, RoundedCornerShape(8.dp))
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Características:",
+                style = MaterialTheme.typography.subtitle1.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+
+        // Menú desplegable
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF333333))
+        ) {
+            caracteristicas.forEach { caracteristica ->
+                DropdownMenuItem(
+                    onClick = { /* No es necesario manejar clics aquí, solo mostramos información */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = " ${caracteristica.nombre}",
+                            style = MaterialTheme.typography.body1.copy(color = Color.White)
+                        )
+                        Text(
+                            text = caracteristica.descripcion,
+                            style = MaterialTheme.typography.body2.copy(color = Color.Gray)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
 fun DispositivoDetailsScreen(
     dispositivoDetails: DispositivoWithDetails,
     onBack: () -> Unit,
     onVentaExitosa: () -> Unit,
     onError: (String) -> Unit
 ) {
-    println("Adicionales recibidos: ${dispositivoDetails.adicionales}")
     val selectedOpciones = remember { mutableStateMapOf<String, Opcion>() }
     val selectedAdicionales = remember { mutableStateMapOf<Int, Boolean>() }
 
@@ -206,7 +280,6 @@ fun DispositivoDetailsScreen(
                 if (adicional != null && adicional.precioGratis != -1.0 &&
                     basePlusPersonalizations >= adicional.precioGratis
                 ) {
-                    println("Adicional en promoción: ${adicional.nombre}")
                     0.0
                 } else {
                     adicional?.precio ?: 0.0
@@ -224,8 +297,8 @@ fun DispositivoDetailsScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF0F4F8),
-                        Color(0xFFE6EAF0)
+                        Color(0xff424242),
+                        Color(0xff212121)
                     )
                 )
             )
@@ -244,7 +317,7 @@ fun DispositivoDetailsScreen(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Volver",
-                    tint = Color(0xFF1A2B3C)
+                    tint = Color(0xFFFFFFFF)
                 )
             }
 
@@ -258,40 +331,28 @@ fun DispositivoDetailsScreen(
                         text = dispositivoDetails.dispositivo.nombre,
                         style = MaterialTheme.typography.h5.copy(
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF1A2B3C)
+                            color = Color(0xFFFFFFFF)
                         )
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = dispositivoDetails.dispositivo.descripcion,
                         style = MaterialTheme.typography.body1.copy(
-                            color = Color(0xFF667085)
+                            color = Color(0xF3F3F3F3)
                         )
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Características:",
-                        style = MaterialTheme.typography.subtitle1.copy(
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF1A2B3C)
-                        )
-                    )
-                    dispositivoDetails.caracteristicas.forEach { caracteristica ->
-                        Text(
-                            text = "- ${caracteristica.nombre}: ${caracteristica.descripcion}",
-                            style = MaterialTheme.typography.body2.copy(
-                                color = Color(0xFF667085)
-                            )
-                        )
-                    }
+                    // Sección "Características" con menú desplegable
+                    CaracteristicasDropdown(caracteristicas = dispositivoDetails.caracteristicas)
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
                         text = "Personalizaciones:",
                         style = MaterialTheme.typography.h6.copy(
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF1A2B3C)
+                            color = Color(0xFFFFFFFF)
                         )
                     )
                     dispositivoDetails.personalizaciones.forEach { personalizacion ->
@@ -311,10 +372,10 @@ fun DispositivoDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Precio Total: $${String.format("%.2f", totalPrice)}",
+                text = "$${String.format("%.2f", totalPrice)}",
                 style = MaterialTheme.typography.h5.copy(
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF007BFF)
+                    color = Color.Green
                 ),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -350,8 +411,8 @@ fun DispositivoDetailsScreen(
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color(0xFF007BFF),
-                            contentColor = Color.White
+                            backgroundColor = Color.Green,
+                            contentColor = Color.Black
                         )
                     ) {
                         Text("Comprar")
@@ -361,7 +422,7 @@ fun DispositivoDetailsScreen(
                         onClick = { onBack() },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color(0xFFF5F5F5),
+                            backgroundColor = Color.White,
                             contentColor = Color(0xFF1A2B3C)
                         )
                     ) {
@@ -435,73 +496,105 @@ fun PersonalizacionItem(
     selectedOpciones: MutableMap<String, Opcion>
 ) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(text = personalizacion.nombre, style = MaterialTheme.typography.subtitle1)
+        Text(
+            text = personalizacion.nombre,
+            style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
+        )
         Spacer(modifier = Modifier.height(4.dp))
         personalizacion.opciones.forEach { opcion ->
+            val isSelected = selectedOpciones[personalizacion.nombre] == opcion
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(if (isSelected) Color(0xFF444444) else Color.Transparent) // Fondo seleccionado más oscuro
+                    .border(1.dp, if (isSelected) Color.White else Color.Gray) // Borde opcional
                     .clickable {
                         selectedOpciones[personalizacion.nombre] = opcion
                     }
-                    .padding(8.dp)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = selectedOpciones[personalizacion.nombre] == opcion,
+                    selected = isSelected,
                     onClick = {
                         selectedOpciones[personalizacion.nombre] = opcion
-                    }
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color.White, // Color del RadioButton seleccionado
+                        unselectedColor = Color.Gray // Color del RadioButton no seleccionado
+                    )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "${opcion.nombre} \n(+$${opcion.precioAdicional})")
+                Text(
+                    text = "${opcion.nombre} \n+$${opcion.precioAdicional}",
+                    style = MaterialTheme.typography.body1.copy(color = Color.White)
+                )
             }
         }
     }
 }
 
+
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdicionalItem(
     adicional: Adicional,
     selectedAdicionales: MutableMap<Int, Boolean>,
     basePlusPersonalizations: Double
 ) {
+    val isSelected = selectedAdicionales[adicional.id] ?: false
     val enPromocion = adicional.precioGratis != -1.0 && basePlusPersonalizations >= adicional.precioGratis
 
-    Row(
+    // Diseño del cuadrado para cada adicional
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(8.dp)
+            .size(120.dp) // Tamaño del cuadrado
+            .background(
+                color = if (isSelected) Color.DarkGray else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            ) // Fondo y bordes redondeados
+            .border(
+                width = 2.dp,
+                color = if (isSelected) Color.White else Color.Gray,
+                shape = RoundedCornerShape(8.dp)
+            )
             .clickable {
-                val currentSelection = selectedAdicionales[adicional.id] ?: false
-                selectedAdicionales[adicional.id] = !currentSelection
+                selectedAdicionales[adicional.id] = !isSelected
             },
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Checkbox(
-            checked = selectedAdicionales[adicional.id] ?: false,
-            onCheckedChange = {
-                selectedAdicionales[adicional.id] = it
-            }
+        Text(
+            text = adicional.nombre,
+            style = MaterialTheme.typography.body1.copy(color = Color.White)
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(
-                text = adicional.nombre,
-                style = MaterialTheme.typography.body1
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = if (enPromocion) {
+                "Gratis"
+            } else {
+                "$${String.format("%.2f", adicional.precio)}"
+            },
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.secondary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Checkbox(
+            checked = isSelected,
+            onCheckedChange = { selectedAdicionales[adicional.id] = it },
+            colors = CheckboxDefaults.colors(
+                checkedColor = Color.White,
+                uncheckedColor = Color.Gray,
+                checkmarkColor = Color.Black
             )
-            Text(
-                text = if (enPromocion) {
-                    "Gratis "
-                } else {
-                    "$${String.format("%.2f", adicional.precio)}"
-                },
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.secondary
-            )
-        }
+        )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdicionalesSection(
     adicionales: List<Adicional>,
@@ -513,14 +606,20 @@ fun AdicionalesSection(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(text = "Adicionales:", style = MaterialTheme.typography.h6)
+        Text(
+            text = "Adicionales:",
+            style = MaterialTheme.typography.h6.copy(color = Color.White)
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3), // Tres columnas
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(400.dp), // Altura máxima de la cuadrícula
+            contentPadding = PaddingValues(8.dp)
         ) {
-            items(adicionales) { adicional ->
+            items(adicionales.size) { index ->
+                val adicional = adicionales[index]
                 AdicionalItem(
                     adicional = adicional,
                     selectedAdicionales = selectedAdicionales,
@@ -530,6 +629,8 @@ fun AdicionalesSection(
         }
     }
 }
+
+
 
 
 
