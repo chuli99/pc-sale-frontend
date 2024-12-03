@@ -434,8 +434,6 @@ fun DispositivoDetailsScreen(
     }
 }
 
-// Las siguientes funciones (realizarVenta, PersonalizacionItem, AdicionalItem, AdicionalesSection)
-// permanecen igual que en el código original, solo con pequeñas modificaciones de estilo
 
 
 fun realizarVenta(
